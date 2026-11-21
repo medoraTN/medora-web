@@ -1,0 +1,9 @@
+.heading { display: flex; justify-content: space-between; align-items: baseline; gap: .75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.heading h1 { margin: 0; }
+.search { display: grid; gap: .35rem; margin-bottom: 1rem; }
+.search input { flex: 1 1 15rem; max-width: 32rem; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: .875rem .65rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); }
+nav { margin-top: 1rem; }

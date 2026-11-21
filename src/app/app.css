@@ -1,0 +1,7 @@
+.site-header { background: #fff; border-bottom: 1px solid var(--border); }
+.header-content, nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.header-content { min-height: 4.25rem; flex-wrap: wrap; padding-block: .5rem; }
+.brand { font-weight: 800; font-size: 1.25rem; text-decoration: none; }
+.brand span { color: var(--muted); font-size: .9rem; font-weight: 600; }
+nav a { font-weight: 650; }
+main { padding-block: clamp(1.5rem, 4vw, 3.5rem); }

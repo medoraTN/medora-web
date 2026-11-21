@@ -1,1 +1,50 @@
-<p>patient-detail works!</p>
+<p><a routerLink="/patients">Retour aux patients</a></p>
+@if (loading()) { <p role="status">Chargement du dossier…</p> }
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+  <button type="button" class="secondary" (click)="load()" [disabled]="loading() || saving()">Recharger le dossier</button>
+}
+@if (patient(); as record) {
+  <section class="panel">
+    <h1>{{ record.firstName }} {{ record.lastName }}</h1>
+    @if (auth.canEditPatient()) {
+      <a class="button secondary" [routerLink]="['/patients', record.id, 'edit']">Modifier le dossier</a>
+    }
+    <dl>
+      <div><dt>N° de dossier</dt><dd>{{ record.recordNumber }}</dd></div>
+      <div><dt>Date de naissance</dt><dd>{{ record.dateOfBirth | date:'dd/MM/yyyy':'UTC' }}</dd></div>
+      <div><dt>Sexe</dt><dd>{{ record.sex }}</dd></div>
+      <div><dt>Téléphone</dt><dd>{{ record.phone }}</dd></div>
+      <div><dt>Adresse ou zone</dt><dd>{{ record.residence }}</dd></div>
+      <div><dt>Motif d’arrivée</dt><dd>{{ record.arrivalReason }}</dd></div>
+      <div><dt>Priorité</dt><dd>{{ record.priority }}</dd></div>
+      <div><dt>Statut</dt><dd>{{ labels[record.status] }}</dd></div>
+      @if (record.comments) { <div><dt>Commentaires internes</dt><dd>{{ record.comments }}</dd></div> }
+    </dl>
+  </section>
+  <section class="panel history">
+    <h2>Suivi du statut</h2>
+    @if (auth.canChangeStatus()) {
+      <form class="actions" (ngSubmit)="updateStatus(record)">
+        <label>Nouveau statut
+          <select name="status" [(ngModel)]="selected" [disabled]="saving() || loading()">
+            @for (status of statuses; track status) { <option [ngValue]="status">{{ labels[status] }}</option> }
+          </select>
+        </label>
+        <button type="submit" [disabled]="saving() || loading() || selected === record.status">
+          {{ saving() ? 'Enregistrement…' : 'Mettre à jour' }}
+        </button>
+      </form>
+    }
+    @if (record.statusHistory.length === 0) { <p>Aucun changement de statut.</p> }
+    @else {
+      <ol>
+        @for (event of record.statusHistory; track event.id) {
+          <li>{{ labels[event.previousStatus] }} → {{ labels[event.nextStatus] }}
+            <span class="muted">{{ event.changedAt | date:'dd/MM/yyyy HH:mm' }} · {{ event.actor.email }}</span>
+          </li>
+        }
+      </ol>
+    }
+  </section>
+}

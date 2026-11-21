@@ -2,7 +2,7 @@
   "name": "medora-web",
   "version": "0.0.0",
   "scripts": {
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "test": "ng test",
     "e2e": "playwright test",

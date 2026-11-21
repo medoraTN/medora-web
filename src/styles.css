@@ -1,1 +1,25 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  font-family: system-ui, sans-serif;
+  color: #172d2b;
+  background: #f4f8f7;
+  --accent: #08675a;
+  --border: #cddbd8;
+  --muted: #49635f;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+.shell { width: min(100% - 2rem, 70rem); margin-inline: auto; }
+a { color: var(--accent); }
+h1 { margin: 0 0 1rem; font-size: clamp(1.7rem, 4vw, 2.5rem); }
+h2 { font-size: 1.25rem; }
+.panel { background: #fff; border: 1px solid var(--border); border-radius: .75rem; padding: clamp(1rem, 3vw, 1.75rem); }
+label { display: grid; gap: .35rem; font-weight: 600; }
+input, textarea, select, button, .button { font: inherit; border-radius: .45rem; padding: .65rem .8rem; }
+input, textarea, select { width: 100%; color: inherit; border: 1px solid #839d97; background: #fff; }
+button, .button { cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: #fff; font-weight: 650; text-decoration: none; }
+button.secondary, .button.secondary { background: #fff; color: var(--accent); }
+button:disabled { opacity: .55; cursor: default; }
+:focus-visible { outline: 3px solid #287fdb; outline-offset: 3px; }
+.error { color: #8f1827; }
+.actions { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; }
+.muted { color: var(--muted); }

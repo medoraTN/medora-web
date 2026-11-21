@@ -1,0 +1,27 @@
+<p><a [routerLink]="id ? ['/patients', id] : ['/patients']">Retour</a></p>
+<section class="panel">
+  <h1>{{ id ? 'Modifier le dossier' : 'Nouveau patient' }}</h1>
+  @if (loading()) { <p role="status">Chargement du dossier…</p> }
+  @if (error()) {
+    <p role="alert" class="error">{{ error() }}</p>
+    @if (!ready()) { <button type="button" class="secondary" (click)="load()">Réessayer</button> }
+  }
+  @if (ready()) {
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <fieldset [disabled]="saving()">
+        <legend>Informations patient</legend>
+        @for (field of fields; track field.name) {
+          <label>{{ field.label }}
+            <input [type]="field.type" [formControlName]="field.name" [attr.maxlength]="field.max" required />
+          </label>
+        }
+        <label class="wide">Commentaires internes
+          <textarea formControlName="comments" maxlength="2000" rows="3"></textarea>
+        </label>
+      </fieldset>
+      <button type="submit" [disabled]="form.invalid || saving()">
+        {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </form>
+  }
+</section>

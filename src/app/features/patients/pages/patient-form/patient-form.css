@@ -1,0 +1,3 @@
+fieldset { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; border: 0; padding: 0; margin: 0 0 1.5rem; }
+legend { font-weight: 650; margin-bottom: .75rem; }
+.wide { grid-column: 1 / -1; }

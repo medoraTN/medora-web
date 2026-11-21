@@ -2,15 +2,11 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.3.0.
 
-## Development server
+## Développement local — Sprint 1
 
-To start a local development server, run:
+Démarrer Medora API sur le port 3000 avec une base migrée et un compte de démonstration. Lancer `npm ci`, puis `npm start` dans ce dépôt. Ouvrir `http://localhost:4200`. Le proxy Angular redirige `/api` vers Medora API. Le déploiement doit servir le frontend et l’API sous la même origine.
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+La connexion donne accès aux dossiers patients. Les actions disponibles dépendent du rôle. Le jeton reste en mémoire pendant la session Angular. Recharger la page demande une nouvelle connexion.
 
 ## Code scaffolding
 
@@ -44,15 +40,9 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 ng test
 ```
 
-## Running end-to-end tests
+## Tests de bout en bout
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Lancer `npx playwright install chromium`. Démarrer l’API sur une base dédiée aux parcours E2E avec un compte de démonstration `ADMIN` ou `MEDICAL`. Exporter `MEDORA_E2E_EMAIL` et `MEDORA_E2E_PASSWORD`, puis lancer `npm run e2e`. Playwright démarre le frontend si nécessaire. Le scénario crée un dossier fictif dans la base connectée.
 
 ## Additional Resources
 
