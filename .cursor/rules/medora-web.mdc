@@ -1,0 +1,6 @@
+---
+description: Architecture Angular MVVM, contrat HTTP et Definition of Done de Medora Web
+alwaysApply: true
+---
+
+Appliquer les règles du dépôt dans [AGENTS.md](../../AGENTS.md). Par exemple, charger la liste des patients via le service API, stocker l’état d’affichage dans le composant et le rendre dans le template.
