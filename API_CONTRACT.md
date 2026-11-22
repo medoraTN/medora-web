@@ -26,6 +26,16 @@ Supported roles: `ADMIN`, `MEDICAL`, `ADMIN_STAFF`, `SUPERVISOR`.
 | `GET /api/patients` | `ADMIN`, `MEDICAL`, `ADMIN_STAFF`, `SUPERVISOR` |
 | `GET /api/patients/:id` | `ADMIN`, `MEDICAL`, `ADMIN_STAFF`, `SUPERVISOR` |
 | `PATCH /api/patients/:id/status` | `ADMIN`, `MEDICAL` |
+| `POST /api/reservations` | `ADMIN`, `ADMIN_STAFF`, `MEDICAL` |
+| `GET /api/reservations` | `ADMIN`, `MEDICAL`, `ADMIN_STAFF`, `SUPERVISOR` |
+| `GET /api/reservations/:id` | `ADMIN`, `MEDICAL`, `ADMIN_STAFF`, `SUPERVISOR` |
+| `PATCH /api/reservations/:id` | `ADMIN`, `ADMIN_STAFF`, `MEDICAL` |
+| `POST /api/reservations/:id/cancel` | `ADMIN`, `ADMIN_STAFF`, `MEDICAL` |
+| `POST /api/users` | `ADMIN` |
+| `GET /api/users` | `ADMIN` |
+| `GET /api/users/:id` | `ADMIN` |
+| `PATCH /api/users/:id` | `ADMIN` |
+| `POST /api/users/:id/reset-password` | `ADMIN` |
 
 ---
 
@@ -298,6 +308,159 @@ Requires `ADMIN` or `MEDICAL`.
 
 ---
 
+## Reservations
+
+### Reservation Object Shape
+
+```json
+{
+  "id": "reservation-id",
+  "patientId": "patient-id",
+  "service": "Imagerie",
+  "practitioner": "Dr. Martin",
+  "examination": "Echo",
+  "scheduledAt": "2026-11-23T09:00:00.000Z",
+  "durationMinutes": 30,
+  "status": "PENDING",
+  "createdAt": "2026-11-22T10:00:00.000Z",
+  "updatedAt": "2026-11-22T10:00:00.000Z"
+}
+```
+
+- `practitioner` and `examination` may be `null`.
+- **Statuses:** `PENDING`, `CONFIRMED`, `CANCELLED`.
+- Allowed transitions: `PENDING` ↔ `CONFIRMED`; active reservation → `CANCELLED`. `CANCELLED` is terminal.
+
+---
+
+### `POST /api/reservations`
+
+Requires `ADMIN`, `ADMIN_STAFF`, or `MEDICAL`.
+
+**Request:**
+```json
+{
+  "patientId": "patient-id",
+  "service": "Imagerie",
+  "practitioner": "Dr. Martin",
+  "examination": "Echo",
+  "scheduledAt": "2026-11-23T09:00:00.000Z",
+  "durationMinutes": 30,
+  "status": "PENDING"
+}
+```
+
+- **Required:** `patientId`, `service`, `scheduledAt` (ISO-8601 datetime with offset), `durationMinutes` (integer 5–1440).
+- **Optional:** `practitioner`, `examination`, `status` (defaults to `PENDING`).
+- Unknown fields are rejected.
+- Unknown patient returns `404 NOT_FOUND`.
+- Success: `201 Created` with `{ "reservation": { ... } }`.
+
+---
+
+### `GET /api/reservations`
+
+Requires any authenticated role.
+
+**Query parameters:**
+- `page` (integer ≥ 1, default `1`)
+- `pageSize` (integer 1–100, default `20`)
+- `patientId` (optional)
+- `status` (optional: `PENDING` \| `CONFIRMED` \| `CANCELLED`)
+- `from` / `to` (optional ISO-8601 datetimes; filter on `scheduledAt`; `from` ≤ `to`)
+
+Results are ordered by `scheduledAt`, then `id`. Success: `200 OK` with `{ items, pagination }`.
+
+---
+
+### `GET /api/reservations/:id`
+
+Requires any authenticated role. Success: `200 { reservation }`. Unknown id: `404 NOT_FOUND`.
+
+---
+
+### `PATCH /api/reservations/:id`
+
+Requires `ADMIN`, `ADMIN_STAFF`, or `MEDICAL`. Body may include any of `service`, `practitioner`, `examination`, `scheduledAt`, `durationMinutes`, `status`. At least one field is required. Updating a cancelled reservation or an invalid status transition returns `409 INVALID_RESERVATION_STATUS_TRANSITION`.
+
+---
+
+### `POST /api/reservations/:id/cancel`
+
+Requires `ADMIN`, `ADMIN_STAFF`, or `MEDICAL`. Sets `status` to `CANCELLED`. Already cancelled: `409 INVALID_RESERVATION_STATUS_TRANSITION`. Unknown id: `404 NOT_FOUND`.
+
+---
+
+## Users (admin)
+
+User administration is restricted to `ADMIN`. Responses never include `password` or `passwordHash`.
+
+### User Object Shape
+
+```json
+{
+  "id": "user-id",
+  "email": "user@example.com",
+  "firstName": "Sam",
+  "lastName": "Example",
+  "role": "MEDICAL",
+  "isActive": true,
+  "createdAt": "2026-01-01T10:00:00.000Z",
+  "updatedAt": "2026-01-01T10:00:00.000Z"
+}
+```
+
+---
+
+### `POST /api/users`
+
+**Request:**
+```json
+{
+  "email": "user@example.com",
+  "password": "SecretPass1",
+  "firstName": "Sam",
+  "lastName": "Example",
+  "role": "MEDICAL"
+}
+```
+
+- Required: `email`, `password` (min 8 chars), `firstName`, `lastName`, `role`.
+- Email is stored lowercased. Duplicate email → `409 CONFLICT`.
+- Success: `201 { user }` with `isActive: true`.
+
+---
+
+### `GET /api/users`
+
+Query: `page`, `pageSize`, optional `includeInactive` (`true`/`false`). Default lists **active** users only.
+
+Success: `200 { items, pagination }`.
+
+---
+
+### `GET /api/users/:id`
+
+Success: `200 { user }`. Unknown id → `404 NOT_FOUND`.
+
+---
+
+### `PATCH /api/users/:id`
+
+Body may include `role`, `isActive`, `firstName`, `lastName` (at least one required). Used to assign roles and deactivate accounts.
+
+---
+
+### `POST /api/users/:id/reset-password`
+
+```json
+{ "password": "NewPassword1" }
+```
+
+Sets a new hashed password. Response sets `Cache-Control: no-store`.
+
+---
+
 ## Error Response Format
 
 Errors use this envelope:
@@ -325,6 +488,7 @@ Errors use this envelope:
 | `404` | `NOT_FOUND` | Route or patient not found |
 | `409` | `CONFLICT` | Duplicate patient dossier number or phone |
 | `409` | `INVALID_STATUS_TRANSITION` | Requested patient status transition is disallowed |
+| `409` | `INVALID_RESERVATION_STATUS_TRANSITION` | Requested reservation status transition is disallowed |
 | `413` | `PAYLOAD_TOO_LARGE` | Oversized request body |
 | `500` | `INTERNAL_ERROR` | Other unexpected failures |
 
