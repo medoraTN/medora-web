@@ -71,20 +71,20 @@ medora-web/
 │   ├── app/
 │   │   ├── core/                          # Modèle, infrastructure et services transverses
 │   │   │   ├── models/
-│   │   │   │   ├── patient.model.ts
-│   │   │   │   ├── reservation.model.ts
-│   │   │   │   └── user.model.ts
+│   │   │   │   ├── patient.ts
+│   │   │   │   ├── reservation.ts
+│   │   │   │   └── user.ts
 │   │   │   ├── services/
-│   │   │   │   ├── patient-api.service.ts
-│   │   │   │   ├── reservation-api.service.ts
-│   │   │   │   ├── auth.service.ts
-│   │   │   │   └── dashboard.service.ts
+│   │   │   │   ├── patient-api.ts
+│   │   │   │   ├── reservation-api.ts
+│   │   │   │   ├── auth.ts
+│   │   │   │   └── dashboard.ts
 │   │   │   ├── interceptors/
-│   │   │   │   ├── auth.interceptor.ts
-│   │   │   │   └── error.interceptor.ts
+│   │   │   │   ├── auth-interceptor.ts
+│   │   │   │   └── error-interceptor.ts
 │   │   │   ├── guards/
-│   │   │   │   ├── auth.guard.ts
-│   │   │   │   └── role.guard.ts
+│   │   │   │   ├── auth-guard.ts
+│   │   │   │   └── role-guard.ts
 │   │   │   └── config/
 │   │   │       └── api.config.ts
 │   │   │
@@ -92,31 +92,31 @@ medora-web/
 │   │   │   ├── patients/
 │   │   │   │   ├── pages/
 │   │   │   │   │   ├── patient-list/
-│   │   │   │   │   │   ├── patient-list.component.ts       # ViewModel
-│   │   │   │   │   │   ├── patient-list.component.html     # View
-│   │   │   │   │   │   └── patient-list.component.scss
+│   │   │   │   │   │   ├── patient-list.ts       # ViewModel
+│   │   │   │   │   │   ├── patient-list.html     # View
+│   │   │   │   │   │   └── patient-list.scss
 │   │   │   │   │   └── patient-detail/
 │   │   │   │   ├── components/
 │   │   │   │   │   ├── patient-card/
 │   │   │   │   │   └── status-badge/
-│   │   │   │   └── patients.routes.ts
+│   │   │   │   └── patients.ts
 │   │   │   │
 │   │   │   ├── reservations/
 │   │   │   │   ├── pages/
 │   │   │   │   │   ├── reservation-list/
 │   │   │   │   │   └── reservation-form/
 │   │   │   │   ├── components/
-│   │   │   │   └── reservations.routes.ts
+│   │   │   │   └── reservations.ts
 │   │   │   │
 │   │   │   ├── dashboard/
 │   │   │   │   ├── pages/
 │   │   │   │   │   └── dashboard/
-│   │   │   │   └── dashboard.routes.ts
+│   │   │   │   └── dashboard.ts
 │   │   │   │
 │   │   │   └── auth/
 │   │   │       ├── pages/
 │   │   │       │   └── login/
-│   │   │       └── auth.routes.ts
+│   │   │       └── auth.ts
 │   │   │
 │   │   ├── shared/                        # Composants et utilitaires réutilisables
 │   │   │   ├── components/
@@ -126,8 +126,8 @@ medora-web/
 │   │   │   ├── pipes/
 │   │   │   └── validators/
 │   │   │
-│   │   ├── app.component.ts
-│   │   ├── app.routes.ts
+│   │   ├── app.ts
+│   │   ├── app.ts
 │   │   └── app.config.ts
 │   │
 │   ├── environments/
@@ -139,9 +139,9 @@ medora-web/
 │   └── styles.scss
 │
 ├── e2e/                                   # Tests end-to-end
-│   ├── auth.e2e.spec.ts
-│   ├── patients.e2e.spec.ts
-│   └── reservations.e2e.spec.ts
+│   ├── auth.spec.ts
+│   ├── patients.spec.ts
+│   └── reservations.spec.ts
 │
 ├── angular.json
 ├── package.json
