@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, tap, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { API_BASE_URL } from '../config/api.config';
 import { LoginResponse, User } from '../models/user';
 
@@ -25,6 +26,20 @@ export class Auth {
           this.currentUser.set(response.user);
         }),
       );
+  }
+
+  getCurrentUser(): Observable<User> {
+    return this.http.get<{ user: User }>(`${API_BASE_URL}/auth/me`).pipe(
+      map(({ user }) => user),
+      tap((user) => {
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        this.currentUser.set(user);
+      }),
+      catchError((error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 401) this.logout();
+        return throwError(() => error);
+      }),
+    );
   }
 
   getToken(): string | null {

@@ -2,8 +2,8 @@ import { expect, test } from '@playwright/test';
 
 const corsHeaders = {
   'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'POST, OPTIONS',
-  'access-control-allow-headers': 'content-type',
+  'access-control-allow-methods': 'GET, POST, OPTIONS',
+  'access-control-allow-headers': 'authorization, content-type',
 };
 
 test.beforeEach(async ({ page }) => {
@@ -23,6 +23,28 @@ test('signs in and saves the authenticated session', async ({ page }) => {
       headers: corsHeaders,
       body: JSON.stringify({
         token: 'e2e-token',
+        user: {
+          id: 'user-1',
+          email: 'staff@medora.test',
+          firstName: 'Sam',
+          lastName: 'Staff',
+          role: 'MEDICAL',
+        },
+      }),
+    });
+  });
+
+  await page.route('http://localhost:3000/api/auth/me', async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: corsHeaders });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: corsHeaders,
+      body: JSON.stringify({
         user: {
           id: 'user-1',
           email: 'staff@medora.test',

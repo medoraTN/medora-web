@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { API_BASE_URL } from '../config/api.config';
-import { LoginResponse } from '../models/user';
+import { LoginResponse, User } from '../models/user';
 import { Auth } from './auth';
 
 describe('Auth', () => {
@@ -41,6 +41,35 @@ describe('Auth', () => {
     expect(service.getToken()).toBe('jwt-token');
     expect(service.user()).toEqual(user);
     expect(service.isAuthenticated()).toBe(true);
+  });
+
+  it('loads the signed-in profile from the documented current-user endpoint', () => {
+    let currentUser: User | undefined;
+    service.getCurrentUser().subscribe((profile) => (currentUser = profile));
+
+    const request = http.expectOne(`${API_BASE_URL}/auth/me`);
+    expect(request.request.method).toBe('GET');
+    request.flush({ user });
+
+    expect(currentUser).toEqual(user);
+    expect(service.user()).toEqual(user);
+    expect(localStorage.getItem('medora.auth.user')).toBe(JSON.stringify(user));
+  });
+
+  it('clears the saved session when the current-user endpoint rejects its token', () => {
+    localStorage.setItem('medora.auth.token', 'expired-token');
+    localStorage.setItem('medora.auth.user', JSON.stringify(user));
+    service.getCurrentUser().subscribe({ error: () => undefined });
+
+    http
+      .expectOne(`${API_BASE_URL}/auth/me`)
+      .flush(
+        { error: { code: 'UNAUTHENTICATED', message: 'Unauthenticated' } },
+        { status: 401, statusText: 'Unauthorized' },
+      );
+
+    expect(service.getToken()).toBeNull();
+    expect(service.user()).toBeNull();
   });
 
   it('clears the saved session on logout', () => {
