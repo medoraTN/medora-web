@@ -160,3 +160,26 @@ medora-web/
 | **Tests** | Jest, Supertest, Playwright API | Jasmine/Karma ou Vitest, Playwright UI |
 | **Déploiement** | API Node + base de données | Build Angular servi par Nginx, CDN ou backend |
 
+## Communication Front end Backend 
+
+```Communication Front-end
+Backend
+
+View (HTML)
+↓ événement
+ViewModel (Component + Signals)
+↓ appel
+Model (PatientApiService)
+↓ HttpClient
+HTTP /api/patients
+↓
+Presentation (Controller / Route)
+↓
+Application (Use Case)
+↓
+Domain (Entity + IRepository)
+↓
+Infrastructure (Prisma Repository)
+↓
+PostgreSQL```
+
