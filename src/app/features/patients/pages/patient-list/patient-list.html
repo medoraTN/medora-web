@@ -1,1 +1,172 @@
-<p>patient-list works!</p>
+<main class="patients-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/patients" aria-label="Medora, liste des patients">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span>medora</span>
+    </a>
+    <div class="account-actions">
+      <span class="user-greeting">Bonjour, {{ user()?.firstName }}</span>
+      <button class="sign-out" type="button" (click)="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <section class="content" aria-labelledby="page-title">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">ESPACE DE SOINS</p>
+        <h1 id="page-title">Patients</h1>
+        <p class="subtitle">Retrouvez rapidement un dossier et suivez la prise en charge.</p>
+      </div>
+      <div class="patient-count" aria-live="polite">
+        <span class="count-number">{{ pagination().total }}</span>
+        <span>{{ pagination().total === 1 ? 'patient' : 'patients' }}</span>
+      </div>
+    </div>
+
+    <form class="filters" (ngSubmit)="applyFilters()">
+      <label class="search-field" for="patient-search">
+        <span class="sr-only">Rechercher un patient</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+          <circle cx="10.8" cy="10.8" r="6.8" />
+          <path d="m16 16 4.5 4.5" />
+        </svg>
+        <input
+          id="patient-search"
+          name="search"
+          type="search"
+          [(ngModel)]="searchTerm"
+          maxlength="100"
+          placeholder="Nom, dossier, téléphone ou identifiant"
+        />
+      </label>
+
+      <label class="status-filter">
+        <span class="sr-only">Filtrer par statut</span>
+        <select name="status" [(ngModel)]="selectedStatus">
+          <option value="">Tous les statuts</option>
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ statusLabel(status) }}</option>
+          }
+        </select>
+      </label>
+
+      <button class="search-button" type="submit" [disabled]="isLoading()">Rechercher</button>
+      @if (searchTerm || selectedStatus) {
+        <button class="clear-button" type="button" (click)="clearFilters()">Effacer</button>
+      }
+    </form>
+
+    @if (errorMessage()) {
+      <div class="notice error-notice" role="alert">
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="loadPatients(pagination().page)">Réessayer</button>
+      </div>
+    }
+
+    <section class="results-card" aria-label="Résultats des patients" aria-busy="{{ isLoading() }}">
+      @if (isLoading()) {
+        <div class="loading-state" role="status">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Chargement des dossiers…</span>
+        </div>
+      } @else if (patients().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon" aria-hidden="true">⌕</span>
+          <h2>Aucun patient trouvé</h2>
+          <p>Essayez un autre nom, numéro de dossier, téléphone ou identifiant.</p>
+          @if (searchTerm || selectedStatus) {
+            <button class="clear-button" type="button" (click)="clearFilters()">
+              Effacer les filtres
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Patient</th>
+                <th scope="col">N° de dossier</th>
+                <th scope="col">Arrivée</th>
+                <th scope="col">Priorité</th>
+                <th scope="col">Statut</th>
+                <th scope="col"><span class="sr-only">Ouvrir le dossier</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (patient of patients(); track patient.id) {
+                <tr>
+                  <td data-label="Patient">
+                    <a class="patient-link" [routerLink]="['/patients', patient.id]">
+                      <span class="avatar" aria-hidden="true">
+                        {{ patient.firstName.charAt(0) }}{{ patient.lastName.charAt(0) }}
+                      </span>
+                      <span class="patient-name">
+                        <strong>{{ patient.firstName }} {{ patient.lastName }}</strong>
+                        <small>{{ patient.phone }}</small>
+                      </span>
+                    </a>
+                  </td>
+                  <td data-label="N° de dossier" class="record-number">
+                    {{ patient.recordNumber }}
+                  </td>
+                  <td data-label="Arrivée">
+                    <span class="arrival-reason">{{ patient.arrivalReason }}</span>
+                    <small class="arrival-date">{{
+                      patient.createdAt | date: 'dd/MM/yyyy, HH:mm'
+                    }}</small>
+                  </td>
+                  <td data-label="Priorité">
+                    <span class="priority">Niveau {{ patient.urgencyLevel }}</span>
+                  </td>
+                  <td data-label="Statut">
+                    <span class="status-badge" [class]="'status-' + patient.status.toLowerCase()">
+                      <span class="status-dot" aria-hidden="true"></span>
+                      {{ statusLabel(patient.status) }}
+                    </span>
+                  </td>
+                  <td class="open-cell">
+                    <a
+                      class="open-link"
+                      [routerLink]="['/patients', patient.id]"
+                      [attr.aria-label]="
+                        'Ouvrir le dossier de ' + patient.firstName + ' ' + patient.lastName
+                      "
+                    >
+                      <span aria-hidden="true">→</span>
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="table-footer">
+          <p>
+            Page {{ pagination().page }} sur {{ pagination().totalPages }}
+            <span class="result-total">· {{ pagination().total }} résultat(s)</span>
+          </p>
+          <div class="pagination-actions" aria-label="Pagination">
+            <button
+              type="button"
+              class="page-button"
+              [disabled]="pagination().page <= 1 || isLoading()"
+              (click)="loadPatients(pagination().page - 1)"
+            >
+              ← <span>Précédent</span>
+            </button>
+            <button
+              type="button"
+              class="page-button"
+              [disabled]="pagination().page >= pagination().totalPages || isLoading()"
+              (click)="loadPatients(pagination().page + 1)"
+            >
+              <span>Suivant</span> →
+            </button>
+          </div>
+        </footer>
+      }
+    </section>
+  </section>
+</main>

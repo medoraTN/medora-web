@@ -29,7 +29,9 @@ export class Login {
       next: () => {
         const requestedUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         const returnUrl =
-          requestedUrl?.startsWith('/') && !requestedUrl.startsWith('//') ? requestedUrl : '/';
+          requestedUrl?.startsWith('/') && !requestedUrl.startsWith('//')
+            ? requestedUrl
+            : '/patients';
         void this.router.navigateByUrl(returnUrl);
       },
       error: (error: HttpErrorResponse) => {

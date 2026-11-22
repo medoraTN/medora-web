@@ -1,75 +1,75 @@
 import { expect, test } from '@playwright/test';
 
+const apiUrl = 'http://localhost:3000/api';
 const corsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, OPTIONS',
   'access-control-allow-headers': 'authorization, content-type',
 };
 
+const user = {
+  id: 'user-1',
+  email: 'staff@medora.test',
+  firstName: 'Sam',
+  lastName: 'Staff',
+  role: 'MEDICAL',
+};
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/login');
 });
 
-test('signs in and saves the authenticated session', async ({ page }) => {
-  await page.route('http://localhost:3000/api/auth/login', async (route) => {
-    if (route.request().method() === 'OPTIONS') {
-      await route.fulfill({ status: 204, headers: corsHeaders });
-      return;
-    }
+test('signs in and opens the protected patient workspace', async ({ page }) => {
+  await page.route(`${apiUrl}/**`, async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname.replace('/api', '');
 
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      headers: corsHeaders,
-      body: JSON.stringify({
-        token: 'e2e-token',
-        user: {
-          id: 'user-1',
-          email: 'staff@medora.test',
-          firstName: 'Sam',
-          lastName: 'Staff',
-          role: 'MEDICAL',
-        },
-      }),
-    });
+    if (request.method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: corsHeaders });
+    } else if (path === '/auth/login' && request.method() === 'POST') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: corsHeaders,
+        body: JSON.stringify({ token: 'e2e-token', user }),
+      });
+    } else if (path === '/auth/me' && request.method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: corsHeaders,
+        body: JSON.stringify({ user }),
+      });
+    } else if (path === '/patients' && request.method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: corsHeaders,
+        body: JSON.stringify({
+          items: [],
+          pagination: { page: 1, pageSize: 20, total: 0, totalPages: 0 },
+        }),
+      });
+    } else {
+      await route.fulfill({ status: 404, headers: corsHeaders, body: 'Not found' });
+    }
   });
 
-  await page.route('http://localhost:3000/api/auth/me', async (route) => {
-    if (route.request().method() === 'OPTIONS') {
-      await route.fulfill({ status: 204, headers: corsHeaders });
-      return;
-    }
-
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      headers: corsHeaders,
-      body: JSON.stringify({
-        user: {
-          id: 'user-1',
-          email: 'staff@medora.test',
-          firstName: 'Sam',
-          lastName: 'Staff',
-          role: 'MEDICAL',
-        },
-      }),
-    });
-  });
-
-  await page.getByLabel('Adresse e-mail').fill('staff@medora.test');
+  await page.getByLabel('Adresse e-mail').fill(user.email);
   await page.getByLabel('Mot de passe').fill('correct-password');
   await page.getByRole('button', { name: 'Se connecter' }).click();
 
-  await expect(page).toHaveURL('/');
+  await expect(page).toHaveURL('/patients');
+  await expect(page.getByRole('heading', { name: 'Patients' })).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem('medora.auth.token')))
     .toBe('e2e-token');
 });
 
 test('shows a helpful message when the connection fails', async ({ page }) => {
-  await page.route('http://localhost:3000/api/auth/login', (route) => route.abort());
+  await page.route(`${apiUrl}/auth/login`, (route) => route.abort());
 
-  await page.getByLabel('Adresse e-mail').fill('staff@medora.test');
+  await page.getByLabel('Adresse e-mail').fill(user.email);
   await page.getByLabel('Mot de passe').fill('incorrect-password');
   await page.getByRole('button', { name: 'Se connecter' }).click();
 

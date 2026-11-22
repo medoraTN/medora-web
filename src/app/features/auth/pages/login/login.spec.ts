@@ -57,7 +57,7 @@ describe('Login', () => {
     await fixture.whenStable();
 
     expect(localStorage.getItem('medora.auth.token')).toBe('jwt-token');
-    expect(navigate).toHaveBeenCalledWith('/');
+    expect(navigate).toHaveBeenCalledWith('/patients');
   });
 
   it('shows a clear message when credentials are rejected', () => {
