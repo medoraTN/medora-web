@@ -93,4 +93,8 @@ export class PatientList {
     this.auth.logout();
     void this.router.navigate(['/login']);
   }
+
+  openDashboard(): void {
+    void this.router.navigate(['/dashboard']);
+  }
 }

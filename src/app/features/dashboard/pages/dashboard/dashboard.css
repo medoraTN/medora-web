@@ -1,0 +1,654 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #e3e6e9;
+  color: #04353a;
+  font-family: Inter, 'Segoe UI', sans-serif;
+}
+
+.topbar {
+  display: flex;
+  min-height: 70px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 max(24px, calc((100% - 1280px) / 2));
+  border-bottom: 1px solid rgb(4 53 58 / 8%);
+  background: #fff;
+}
+
+.brand {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  color: #04353a;
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.6px;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 11px;
+  background: #5ac5c8;
+  font-size: 19px;
+}
+
+.primary-nav {
+  display: flex;
+  height: 70px;
+  align-items: center;
+  gap: 25px;
+}
+
+.primary-nav a {
+  display: grid;
+  height: 100%;
+  align-items: center;
+  border-bottom: 2px solid transparent;
+  color: #63767b;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.primary-nav a:hover,
+.primary-nav a.active {
+  border-color: #5ac5c8;
+  color: #087277;
+}
+
+.account-actions,
+.refresh-actions {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.user-greeting {
+  color: #52676b;
+  font-size: 12px;
+}
+
+.sign-out {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid #e3e6e9;
+  border-radius: 8px;
+  background: #fff;
+  color: #28484d;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.sign-out:hover,
+.refresh-button:hover:not(:disabled) {
+  border-color: #5ac5c8;
+  background: #f3fbfb;
+}
+
+.content {
+  width: min(1280px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 36px 0 56px;
+}
+
+.page-heading,
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.page-heading {
+  margin-bottom: 24px;
+}
+
+.eyebrow,
+.panel-kicker {
+  margin: 0 0 7px;
+  color: #087277;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 1.25px;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 6px;
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  margin-bottom: 0;
+  color: #62767b;
+  font-size: 13px;
+}
+
+.refresh-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.updated-at {
+  color: #718387;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.refresh-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid #dce5e6;
+  border-radius: 8px;
+  background: #fff;
+  color: #31575d;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.refresh-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.refresh-button > span {
+  color: #087277;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.status-section {
+  margin-bottom: 18px;
+}
+
+.compact-heading {
+  margin-bottom: 11px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  color: #173e43;
+  font-size: 16px;
+  font-weight: 680;
+  letter-spacing: -0.25px;
+}
+
+.section-heading > div > p:not(.panel-kicker) {
+  margin: 5px 0 0;
+  color: #718387;
+  font-size: 10px;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.status-card {
+  display: grid;
+  min-height: 78px;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgb(4 53 58 / 5%);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgb(4 53 58 / 3%);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #96a6a9;
+}
+
+.status-label {
+  color: #52676b;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.status-count {
+  color: #173e43;
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-waiting .status-indicator {
+  background: #d49a37;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(420px, 0.82fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.reservation-panels {
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  overflow: hidden;
+  border: 1px solid rgb(4 53 58 / 5%);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 22px rgb(4 53 58 / 4%);
+}
+
+.panel > .section-heading {
+  min-height: 69px;
+  padding: 0 17px;
+  border-bottom: 1px solid #edf0f1;
+}
+
+.panel-kicker {
+  margin-bottom: 4px;
+  font-size: 8px;
+}
+
+.panel-link {
+  color: #087277;
+  font-size: 10px;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.panel-link:hover {
+  text-decoration: underline;
+}
+
+.panel-link span {
+  margin-left: 3px;
+  font-size: 13px;
+}
+
+.patient-list,
+.reservation-list {
+  display: grid;
+}
+
+.patient-row {
+  display: grid;
+  min-height: 62px;
+  grid-template-columns: 34px minmax(110px, 1fr) auto minmax(88px, auto) 12px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 15px;
+  border-bottom: 1px solid #f0f2f2;
+  color: inherit;
+  text-decoration: none;
+}
+
+.patient-row:last-child,
+.reservation-row:last-child {
+  border-bottom: 0;
+}
+
+.patient-row:hover {
+  background: #f7fbfb;
+}
+
+.patient-avatar {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 11px;
+  background: #e5f6f6;
+  color: #087277;
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.patient-info,
+.reservation-info {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.patient-info strong,
+.reservation-info strong {
+  overflow: hidden;
+  color: #173e43;
+  font-size: 11px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.patient-info small,
+.reservation-info small {
+  overflow: hidden;
+  color: #77898d;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.urgency {
+  padding: 5px 7px;
+  border-radius: 6px;
+  background: #eff3f4;
+  color: #52676b;
+  font-size: 9px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.urgency-1 {
+  background: #fff0ef;
+  color: #a1433e;
+}
+
+.urgency-2 {
+  background: #fff5e6;
+  color: #90631d;
+}
+
+.patient-status {
+  color: #607478;
+  font-size: 9px;
+  text-align: right;
+}
+
+.row-arrow {
+  color: #8ba0a3;
+  font-size: 13px;
+  text-align: right;
+}
+
+.reservation-count {
+  display: grid;
+  min-width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 8px;
+  background: #eaf8f8;
+  color: #087277;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.reservation-row {
+  display: grid;
+  min-height: 55px;
+  grid-template-columns: 53px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 15px;
+  border-bottom: 1px solid #f0f2f2;
+}
+
+.time-block {
+  display: grid;
+  gap: 2px;
+  color: #087277;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.upcoming-time {
+  color: #52676b;
+  font-size: 10px;
+}
+
+.upcoming-time small {
+  color: #087277;
+  font-size: 10px;
+}
+
+.reservation-status {
+  padding: 5px 7px;
+  border-radius: 20px;
+  font-size: 8px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.status-pending {
+  background: #fff5df;
+  color: #96691d;
+}
+
+.status-confirmed {
+  background: #e8f7f1;
+  color: #26745b;
+}
+
+.status-completed {
+  background: #edf1f3;
+  color: #5d7075;
+}
+
+.panel-empty,
+.reservation-empty {
+  color: #718387;
+  font-size: 10px;
+}
+
+.panel-empty {
+  display: grid;
+  min-height: 150px;
+  align-content: center;
+  gap: 7px;
+  padding: 18px;
+  color: #718387;
+  font-size: 10px;
+  text-align: center;
+}
+
+.panel-empty strong {
+  color: #31575d;
+  font-size: 11px;
+}
+
+.reservation-empty {
+  margin: 0;
+  padding: 18px 16px;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.error-notice {
+  border: 1px solid #f1d0cf;
+  background: #fff6f5;
+  color: #913d39;
+}
+
+.error-notice button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.loading-state {
+  display: flex;
+  min-height: 260px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6c7e82;
+  font-size: 12px;
+}
+
+.spinner {
+  width: 23px;
+  height: 23px;
+  border: 3px solid #d4eeee;
+  border-top-color: #13888a;
+  border-radius: 50%;
+  animation: spin 750ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1050px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reservation-panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    min-height: 64px;
+    flex-wrap: wrap;
+    padding: 0 18px;
+  }
+
+  .primary-nav {
+    order: 3;
+    width: 100%;
+    height: 42px;
+    justify-content: center;
+    gap: 22px;
+  }
+
+  .primary-nav a {
+    font-size: 10px;
+  }
+
+  .account-actions {
+    gap: 7px;
+  }
+
+  .user-greeting {
+    display: none;
+  }
+
+  .content {
+    width: calc(100% - 32px);
+    padding-top: 27px;
+  }
+
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .refresh-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .status-card {
+    min-height: 70px;
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .status-label {
+    font-size: 9px;
+  }
+
+  .status-count {
+    font-size: 19px;
+  }
+
+  .reservation-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  h1 {
+    font-size: 26px;
+  }
+
+  .patient-row {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    gap: 7px;
+    padding: 7px 9px;
+  }
+
+  .patient-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .patient-status,
+  .row-arrow {
+    display: none;
+  }
+
+  .patient-info small {
+    max-width: 150px;
+  }
+
+  .reservation-row {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    padding: 7px 10px;
+  }
+
+  .reservation-status {
+    font-size: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
