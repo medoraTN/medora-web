@@ -20,3 +20,53 @@ button,
 input {
   font: inherit;
 }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-waiting,
+.status-waiting_result {
+  background: #fff6df;
+  color: #885d09;
+}
+
+.status-in_progress,
+.status-in_examination {
+  background: #e8f5fb;
+  color: #27617c;
+}
+
+.status-ready_for_discharge {
+  background: #e6f7f0;
+  color: #197451;
+}
+
+.status-discharged {
+  background: #edf3ef;
+  color: #4d6958;
+}
+
+.status-transferred {
+  background: #f0ebfa;
+  color: #674a91;
+}
+
+.status-cancelled {
+  background: #fcecec;
+  color: #a14242;
+}

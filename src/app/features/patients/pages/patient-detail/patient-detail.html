@@ -1,1 +1,185 @@
-<p>patient-detail works!</p>
+<main class="patient-detail-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/patients" aria-label="Medora, liste des patients">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span>medora</span>
+    </a>
+    <div class="account-actions">
+      <span class="user-greeting">Bonjour, {{ user()?.firstName }}</span>
+      <button class="sign-out" type="button" (click)="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <section class="content" aria-labelledby="page-title" [attr.aria-busy]="isLoading()">
+    <a class="back-link" routerLink="/patients"
+      ><span aria-hidden="true">←</span> Tous les patients</a
+    >
+
+    @if (isLoading()) {
+      <div class="loading-state" role="status">
+        <span class="spinner" aria-hidden="true"></span>
+        Chargement du dossier…
+      </div>
+    } @else if (isNotFound()) {
+      <section class="message-card" role="status">
+        <span class="message-icon" aria-hidden="true">?</span>
+        <h1>Dossier introuvable</h1>
+        <p>Ce patient n’existe pas ou n’est plus disponible.</p>
+        <a class="primary-link" routerLink="/patients">Revenir à la liste</a>
+      </section>
+    } @else if (errorMessage() && !patient()) {
+      <section class="message-card" role="alert">
+        <span class="message-icon error-icon" aria-hidden="true">!</span>
+        <h1>Le dossier n’a pas pu être chargé</h1>
+        <p>{{ errorMessage() }}</p>
+        <button class="primary-button" type="button" (click)="loadPatient()">Réessayer</button>
+      </section>
+    } @else if (patient(); as currentPatient) {
+      <div class="page-heading">
+        <div class="identity-heading">
+          <span class="avatar" aria-hidden="true">
+            {{ currentPatient.firstName.charAt(0) }}{{ currentPatient.lastName.charAt(0) }}
+          </span>
+          <div>
+            <p class="eyebrow">DOSSIER PATIENT · {{ currentPatient.recordNumber }}</p>
+            <h1 id="page-title">{{ currentPatient.firstName }} {{ currentPatient.lastName }}</h1>
+            <p class="subtitle">
+              Dossier créé le {{ currentPatient.createdAt | date: "dd/MM/yyyy 'à' HH:mm" }}
+            </p>
+          </div>
+        </div>
+        <span class="status-badge" [class]="'status-' + currentPatient.status.toLowerCase()">
+          <span class="status-dot" aria-hidden="true"></span>
+          {{ statusLabel(currentPatient.status) }}
+        </span>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="notice error-notice" role="alert">
+          <span>{{ errorMessage() }}</span>
+          @if (canRefresh()) {
+            <button class="refresh-button" type="button" (click)="loadPatient()">Actualiser</button>
+          }
+        </div>
+      }
+
+      <div class="detail-grid">
+        <section class="detail-card" aria-labelledby="identity-title">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">INFORMATIONS</p>
+              <h2 id="identity-title">À propos du patient</h2>
+            </div>
+            <span class="card-symbol" aria-hidden="true">i</span>
+          </div>
+
+          <dl class="info-grid">
+            <div class="info-item">
+              <dt>Date de naissance</dt>
+              <dd>{{ currentPatient.dateOfBirth | date: 'dd/MM/yyyy' }}</dd>
+            </div>
+            <div class="info-item">
+              <dt>Sexe</dt>
+              <dd>{{ sexLabel(currentPatient.sex) }}</dd>
+            </div>
+            <div class="info-item">
+              <dt>Téléphone</dt>
+              <dd>
+                <a [href]="'tel:' + currentPatient.phone">{{ currentPatient.phone }}</a>
+              </dd>
+            </div>
+            <div class="info-item">
+              <dt>Adresse</dt>
+              <dd>{{ currentPatient.address || 'Non renseignée' }}</dd>
+            </div>
+            <div class="info-item full-width">
+              <dt>Motif d’arrivée</dt>
+              <dd>{{ currentPatient.arrivalReason }}</dd>
+            </div>
+            <div class="info-item">
+              <dt>Niveau d’urgence</dt>
+              <dd>
+                <span class="priority">Niveau {{ currentPatient.urgencyLevel }}</span>
+              </dd>
+            </div>
+            <div class="info-item">
+              <dt>Identifiant</dt>
+              <dd class="patient-id">{{ currentPatient.id }}</dd>
+            </div>
+            <div class="info-item full-width">
+              <dt>Notes internes</dt>
+              <dd class="notes-value">
+                {{ currentPatient.internalNotes || 'Aucune note pour le moment.' }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <aside class="detail-card status-card" aria-labelledby="status-title">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">PARCOURS DE SOINS</p>
+              <h2 id="status-title">Suivi du patient</h2>
+            </div>
+            <span class="card-symbol status-symbol" aria-hidden="true">✓</span>
+          </div>
+
+          <p class="current-status-label">Statut actuel</p>
+          <div class="current-status">
+            <span class="status-badge" [class]="'status-' + currentPatient.status.toLowerCase()">
+              <span class="status-dot" aria-hidden="true"></span>
+              {{ statusLabel(currentPatient.status) }}
+            </span>
+            <small
+              >Mis à jour le {{ currentPatient.updatedAt | date: "dd/MM/yyyy 'à' HH:mm" }}</small
+            >
+          </div>
+
+          @if (statusOptions().length > 0) {
+            <form class="status-form" (ngSubmit)="updateStatus()">
+              <label for="next-status">Mettre à jour le statut</label>
+              <select
+                id="next-status"
+                name="nextStatus"
+                required
+                [ngModel]="selectedStatus()"
+                (ngModelChange)="selectedStatus.set($event)"
+              >
+                <option value="" disabled>Choisir un statut</option>
+                @for (status of statusOptions(); track status) {
+                  <option [value]="status">{{ statusLabel(status) }}</option>
+                }
+              </select>
+              <button
+                class="primary-button"
+                type="submit"
+                [disabled]="!selectedStatus() || isSavingStatus()"
+              >
+                @if (isSavingStatus()) {
+                  Enregistrement…
+                } @else {
+                  Enregistrer le statut
+                }
+              </button>
+            </form>
+          } @else {
+            <p class="terminal-note">
+              @if (
+                currentPatient.status === 'DISCHARGED' ||
+                currentPatient.status === 'TRANSFERRED' ||
+                currentPatient.status === 'CANCELLED'
+              ) {
+                Le parcours de ce patient est terminé.
+              } @else {
+                Votre rôle ne permet pas de modifier le statut.
+              }
+            </p>
+          }
+          <p class="status-footnote">
+            Chaque changement est enregistré dans l’historique de suivi.
+          </p>
+        </aside>
+      </div>
+    }
+  </section>
+</main>

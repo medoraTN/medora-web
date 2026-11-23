@@ -180,8 +180,9 @@ Requires any authenticated role (`ADMIN`, `MEDICAL`, `ADMIN_STAFF`, `SUPERVISOR`
 - `status`: optional one of the eight patient statuses
 
 **Behavior:**
-- `search` matches first name, last name, dossier/record number, or phone.
-- Name and dossier/record number matches are case-insensitive; phone matching is a substring search.
+- `search` matches first name, last name, patient ID, dossier/record number, or phone.
+- Name, patient ID, and dossier/record number matches are case-insensitive; patient ID matches the
+  full identifier, while phone matching is a substring search.
 - Results are ordered by last name, first name, then ID.
 - Unknown query parameters are rejected.
 - Invalid query data returns `400 VALIDATION_ERROR`.
