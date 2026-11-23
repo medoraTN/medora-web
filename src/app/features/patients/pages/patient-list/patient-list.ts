@@ -97,4 +97,8 @@ export class PatientList {
   openDashboard(): void {
     void this.router.navigate(['/dashboard']);
   }
+
+  openReservations(): void {
+    void this.router.navigate(['/reservations']);
+  }
 }
