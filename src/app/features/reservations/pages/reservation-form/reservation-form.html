@@ -1,1 +1,134 @@
-<p>reservation-form works!</p>
+<main class="reservation-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/patients" aria-label="Medora, accueil">
+      <span class="brand-mark" aria-hidden="true">M</span><span>medora</span>
+    </a>
+    <a class="back-link" routerLink="/reservations">← Toutes les réservations</a>
+  </header>
+
+  <section class="content" aria-labelledby="page-title">
+    <p class="eyebrow">ORGANISATION DES SOINS</p>
+    <h1 id="page-title">{{ isEditing() ? 'Modifier la réservation' : 'Nouvelle réservation' }}</h1>
+    <p class="subtitle">Planifiez simplement un rendez-vous ou un examen pour un patient.</p>
+
+    @if (isLoading()) {
+      <div class="loading-state" role="status"><span class="spinner"></span>Chargement…</div>
+    } @else {
+      @if (errorMessage()) {
+        <div class="notice error-notice" role="alert">{{ errorMessage() }}</div>
+      }
+      @if (patientError()) {
+        <div class="notice error-notice" role="alert">{{ patientError() }}</div>
+      }
+
+      <form class="form-card" (ngSubmit)="save()">
+        @if (!isEditing()) {
+          <label class="field" for="patient">
+            <span>Patient <b aria-hidden="true">*</b></span>
+            <select id="patient" name="patient" [(ngModel)]="patientId" required>
+              <option value="" disabled>Sélectionner un patient</option>
+              @for (patient of patients(); track patient.id) {
+                <option [value]="patient.id">
+                  {{ patient.firstName }} {{ patient.lastName }} · {{ patient.recordNumber }}
+                </option>
+              }
+            </select>
+          </label>
+          @if (!patientError() && patients().length === 0) {
+            <p class="field-help">Aucun patient disponible. Créez d’abord un dossier patient.</p>
+          }
+        }
+
+        <label class="field" for="service">
+          <span>Type de prestation <b aria-hidden="true">*</b></span>
+          <input
+            id="service"
+            name="service"
+            type="text"
+            [(ngModel)]="service"
+            required
+            maxlength="120"
+            placeholder="Ex. Consultation, imagerie…"
+          />
+        </label>
+
+        <div class="field-row">
+          <label class="field" for="examination">
+            <span>Examen <small>Facultatif</small></span>
+            <input
+              id="examination"
+              name="examination"
+              type="text"
+              [(ngModel)]="examination"
+              maxlength="120"
+              placeholder="Ex. Radiographie"
+            />
+          </label>
+          <label class="field" for="practitioner">
+            <span>Praticien <small>Facultatif</small></span>
+            <input
+              id="practitioner"
+              name="practitioner"
+              type="text"
+              [(ngModel)]="practitioner"
+              maxlength="120"
+              placeholder="Nom du praticien"
+            />
+          </label>
+        </div>
+
+        <div class="field-row schedule-row">
+          <label class="field" for="date">
+            <span>Date <b aria-hidden="true">*</b></span>
+            <input
+              id="date"
+              name="date"
+              type="date"
+              [(ngModel)]="scheduledDate"
+              [min]="minDate"
+              required
+            />
+          </label>
+          <label class="field" for="time">
+            <span>Heure <b aria-hidden="true">*</b></span>
+            <input id="time" name="time" type="time" [(ngModel)]="scheduledTime" required />
+          </label>
+          <label class="field duration-field" for="duration">
+            <span>Durée <b aria-hidden="true">*</b></span>
+            <div class="duration-input">
+              <input
+                id="duration"
+                name="duration"
+                type="number"
+                [(ngModel)]="durationMinutes"
+                min="1"
+                max="1440"
+                step="1"
+                required
+              />
+              <span>min</span>
+            </div>
+          </label>
+        </div>
+
+        <p class="form-hint">
+          Les champs marqués d’un * sont obligatoires. La réservation doit être dans le futur.
+        </p>
+        <div class="form-actions">
+          <a class="cancel-button" routerLink="/reservations">Annuler</a>
+          <button
+            class="save-button"
+            type="submit"
+            [disabled]="isSaving() || (patients().length === 0 && !isEditing())"
+          >
+            @if (isSaving()) {
+              Enregistrement…
+            } @else {
+              {{ isEditing() ? 'Enregistrer les modifications' : 'Créer la réservation' }}
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </section>
+</main>
