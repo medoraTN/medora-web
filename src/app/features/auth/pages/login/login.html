@@ -1,1 +1,73 @@
-<p>login works!</p>
+<main class="login-page">
+  <section class="login-panel" aria-labelledby="login-title">
+    <a class="brand" routerLink="/login" aria-label="Medora, accueil connexion">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span>medora</span>
+    </a>
+
+    <div class="intro">
+      <p class="eyebrow">ESPACE PROFESSIONNEL</p>
+      <h1 id="login-title">Bon retour parmi nous</h1>
+      <p class="subtitle">Connectez-vous pour accéder à votre espace de soins.</p>
+    </div>
+
+    <form (ngSubmit)="submit()">
+      <label for="email">Adresse e-mail</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="username"
+        placeholder="nom@clinique.com"
+        [(ngModel)]="email"
+        required
+        email
+      />
+
+      <div class="password-label">
+        <label for="password">Mot de passe</label>
+      </div>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Saisissez votre mot de passe"
+        [(ngModel)]="password"
+        required
+      />
+
+      @if (errorMessage()) {
+        <p class="error-message" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="!email || !password || isSubmitting()">
+        @if (isSubmitting()) {
+          <span class="spinner" aria-hidden="true"></span>
+          Connexion en cours…
+        } @else {
+          Se connecter
+          <span aria-hidden="true">→</span>
+        }
+      </button>
+    </form>
+
+    <p class="security-note">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+        <rect x="5" y="10" width="14" height="11" rx="2" />
+        <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" />
+      </svg>
+      Accès réservé au personnel autorisé
+    </p>
+  </section>
+
+  <aside class="welcome-panel" aria-label="À propos de Medora">
+    <div class="welcome-content">
+      <div class="pulse-icon" aria-hidden="true"><span></span></div>
+      <p class="eyebrow">LES SOINS, ENSEMBLE</p>
+      <h2>Chaque instant compte.</h2>
+      <p>Retrouvez les informations essentielles pour coordonner les soins avec sérénité.</p>
+    </div>
+    <p class="welcome-footer">Une meilleure coordination, au service de chaque patient.</p>
+  </aside>
+</main>
