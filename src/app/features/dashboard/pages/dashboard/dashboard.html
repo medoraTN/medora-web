@@ -7,6 +7,9 @@
     <nav class="primary-nav" aria-label="Navigation principale">
       <a class="active" routerLink="/dashboard" aria-current="page">Tableau de bord</a>
       <a routerLink="/patients">Patients</a>
+      @if (isAdmin()) {
+        <a routerLink="/users">Utilisateurs</a>
+      }
     </nav>
     <div class="account-actions">
       <span class="user-greeting">Bonjour, {{ user()?.firstName }}</span>

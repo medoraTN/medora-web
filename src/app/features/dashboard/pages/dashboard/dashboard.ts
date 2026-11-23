@@ -37,6 +37,7 @@ export class Dashboard {
   private readonly refreshRequested = new Subject<void>();
 
   readonly user = this.auth.user;
+  readonly isAdmin = computed(() => this.auth.user()?.role === 'ADMIN');
   readonly statuses = PATIENT_STATUSES;
   readonly statusLabels = PATIENT_STATUS_LABELS;
   readonly snapshot = signal<DashboardSnapshot | null>(null);

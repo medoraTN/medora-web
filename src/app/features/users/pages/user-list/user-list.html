@@ -1,0 +1,320 @@
+<main class="users-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/patients" aria-label="Medora, liste des patients">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span>medora</span>
+    </a>
+    <nav aria-label="Navigation principale">
+      <a routerLink="/patients">Patients</a>
+      <a routerLink="/reservations">Réservations</a>
+      <a routerLink="/dashboard">Tableau de bord</a>
+      <a class="active" routerLink="/users" aria-current="page">Utilisateurs</a>
+    </nav>
+    <div class="account-actions">
+      <span class="user-greeting">Bonjour, {{ user()?.firstName }}</span>
+      <button class="sign-out" type="button" (click)="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <section class="content" aria-labelledby="page-title">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">ADMINISTRATION</p>
+        <h1 id="page-title">Utilisateurs</h1>
+        <p class="subtitle">Créez des comptes et contrôlez les rôles d’accès à Medora.</p>
+      </div>
+      <div class="heading-actions">
+        <div class="user-count" aria-live="polite">
+          <span class="count-number">{{ pagination().total }}</span>
+          <span>{{ pagination().total === 1 ? 'utilisateur' : 'utilisateurs' }}</span>
+        </div>
+        <button class="primary-button" type="button" (click)="openCreateForm()">
+          <span aria-hidden="true">＋</span> Nouvel utilisateur
+        </button>
+      </div>
+    </div>
+
+    @if (showCreateForm()) {
+      <form class="create-panel" (ngSubmit)="createUser()" aria-labelledby="create-title">
+        <div class="create-heading">
+          <h2 id="create-title">Créer un utilisateur</h2>
+          <button class="clear-button" type="button" (click)="closeCreateForm()">Fermer</button>
+        </div>
+        <div class="create-grid">
+          <label class="field" for="create-first-name">
+            <span>Prénom</span>
+            <input
+              id="create-first-name"
+              name="firstName"
+              type="text"
+              [(ngModel)]="createFirstName"
+              maxlength="100"
+              required
+              autocomplete="given-name"
+            />
+          </label>
+          <label class="field" for="create-last-name">
+            <span>Nom</span>
+            <input
+              id="create-last-name"
+              name="lastName"
+              type="text"
+              [(ngModel)]="createLastName"
+              maxlength="100"
+              required
+              autocomplete="family-name"
+            />
+          </label>
+          <label class="field" for="create-email">
+            <span>E-mail</span>
+            <input
+              id="create-email"
+              name="email"
+              type="email"
+              [(ngModel)]="createEmail"
+              maxlength="254"
+              required
+              autocomplete="email"
+            />
+          </label>
+          <label class="field" for="create-role">
+            <span>Rôle</span>
+            <select id="create-role" name="role" [(ngModel)]="createRole">
+              @for (role of roles; track role) {
+                <option [value]="role">{{ roleLabel(role) }}</option>
+              }
+            </select>
+          </label>
+          <label class="field field-wide" for="create-password">
+            <span>Mot de passe initial (min. 8 caractères)</span>
+            <input
+              id="create-password"
+              name="password"
+              type="password"
+              [(ngModel)]="createPassword"
+              maxlength="128"
+              required
+              autocomplete="new-password"
+            />
+          </label>
+        </div>
+        <div class="create-actions">
+          <button class="primary-button" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'Création…' : 'Créer le compte' }}
+          </button>
+        </div>
+      </form>
+    }
+
+    <form class="filters" (ngSubmit)="applyFilters()">
+      <label class="search-field" for="user-search">
+        <span class="sr-only">Rechercher un utilisateur</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+          <circle cx="10.8" cy="10.8" r="6.8" />
+          <path d="m16 16 4.5 4.5" />
+        </svg>
+        <input
+          id="user-search"
+          name="search"
+          type="search"
+          [(ngModel)]="searchTerm"
+          maxlength="100"
+          placeholder="Nom ou adresse e-mail"
+        />
+      </label>
+
+      <label class="filter-select">
+        <span class="sr-only">Filtrer par rôle</span>
+        <select name="role" [(ngModel)]="selectedRole">
+          <option value="">Tous les rôles</option>
+          @for (role of roles; track role) {
+            <option [value]="role">{{ roleLabel(role) }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filter-select">
+        <span class="sr-only">Filtrer par statut</span>
+        <select name="status" [(ngModel)]="selectedStatus">
+          <option value="">Tous les statuts</option>
+          <option value="true">Actifs</option>
+          <option value="false">Inactifs</option>
+        </select>
+      </label>
+
+      <button class="search-button" type="submit" [disabled]="isLoading()">Rechercher</button>
+      @if (searchTerm || selectedRole || selectedStatus) {
+        <button class="clear-button" type="button" (click)="clearFilters()">Effacer</button>
+      }
+    </form>
+
+    @if (errorMessage()) {
+      <div class="notice error-notice" role="alert">
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="loadUsers(pagination().page)">Réessayer</button>
+      </div>
+    }
+
+    @if (successMessage()) {
+      <div class="notice success-notice" role="status">{{ successMessage() }}</div>
+    }
+
+    <section class="results-card" aria-label="Résultats des utilisateurs" aria-busy="{{ isLoading() }}">
+      @if (isLoading()) {
+        <div class="loading-state" role="status">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Chargement des utilisateurs…</span>
+        </div>
+      } @else if (users().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon" aria-hidden="true">⌕</span>
+          <h2>Aucun utilisateur trouvé</h2>
+          <p>Essayez un autre nom, e-mail, rôle ou statut.</p>
+          @if (searchTerm || selectedRole || selectedStatus) {
+            <button class="clear-button" type="button" (click)="clearFilters()">
+              Effacer les filtres
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Utilisateur</th>
+                <th scope="col">Rôle</th>
+                <th scope="col">Statut</th>
+                <th scope="col">Créé le</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (managed of users(); track managed.id) {
+                <tr [class.inactive-row]="!managed.isActive">
+                  <td data-label="Utilisateur">
+                    <div class="user-cell">
+                      <span class="avatar" aria-hidden="true">
+                        {{ managed.firstName.charAt(0) }}{{ managed.lastName.charAt(0) }}
+                      </span>
+                      <span class="user-name">
+                        <strong>{{ managed.firstName }} {{ managed.lastName }}</strong>
+                        <small>{{ managed.email }}</small>
+                        @if (isCurrentUser(managed)) {
+                          <span class="you-badge">Vous</span>
+                        }
+                      </span>
+                    </div>
+                  </td>
+                  <td data-label="Rôle">
+                    <label class="inline-select">
+                      <span class="sr-only">Rôle de {{ managed.firstName }}</span>
+                      <select
+                        [ngModel]="managed.role"
+                        [disabled]="isCurrentUser(managed) || actingUserId() === managed.id"
+                        (ngModelChange)="changeRole(managed, $event)"
+                      >
+                        @for (role of roles; track role) {
+                          <option [value]="role">{{ roleLabel(role) }}</option>
+                        }
+                      </select>
+                    </label>
+                  </td>
+                  <td data-label="Statut">
+                    <span
+                      class="status-badge"
+                      [class.status-active]="managed.isActive"
+                      [class.status-inactive]="!managed.isActive"
+                    >
+                      <span class="status-dot" aria-hidden="true"></span>
+                      {{ managed.isActive ? 'Actif' : 'Inactif' }}
+                    </span>
+                  </td>
+                  <td data-label="Créé le">
+                    {{ managed.createdAt | date: 'dd/MM/yyyy, HH:mm' }}
+                  </td>
+                  <td data-label="Actions" class="actions-cell">
+                    @if (passwordResetUserId() === managed.id) {
+                      <form class="reset-form" (ngSubmit)="submitPasswordReset(managed)">
+                        <label class="sr-only" [attr.for]="'reset-' + managed.id"
+                          >Nouveau mot de passe</label
+                        >
+                        <input
+                          [id]="'reset-' + managed.id"
+                          name="resetPassword"
+                          type="password"
+                          [(ngModel)]="resetPasswordValue"
+                          maxlength="128"
+                          placeholder="Nouveau mot de passe"
+                          autocomplete="new-password"
+                        />
+                        <button
+                          class="action-button primary-action"
+                          type="submit"
+                          [disabled]="actingUserId() === managed.id"
+                        >
+                          Valider
+                        </button>
+                        <button class="action-button" type="button" (click)="cancelPasswordReset()">
+                          Annuler
+                        </button>
+                      </form>
+                    } @else {
+                      <button
+                        class="action-button"
+                        type="button"
+                        [disabled]="isCurrentUser(managed) || actingUserId() === managed.id"
+                        (click)="toggleStatus(managed)"
+                        [attr.aria-label]="
+                          (managed.isActive ? 'Désactiver' : 'Réactiver') +
+                          ' ' +
+                          managed.firstName +
+                          ' ' +
+                          managed.lastName
+                        "
+                      >
+                        {{ managed.isActive ? 'Désactiver' : 'Réactiver' }}
+                      </button>
+                      <button
+                        class="action-button"
+                        type="button"
+                        [disabled]="actingUserId() === managed.id"
+                        (click)="openPasswordReset(managed)"
+                      >
+                        Mot de passe
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="table-footer">
+          <p>
+            Page {{ pagination().page }} sur {{ pagination().totalPages || 1 }}
+            <span class="result-total">· {{ pagination().total }} résultat(s)</span>
+          </p>
+          <div class="pagination-actions" aria-label="Pagination">
+            <button
+              type="button"
+              class="page-button"
+              [disabled]="pagination().page <= 1 || isLoading()"
+              (click)="loadUsers(pagination().page - 1)"
+            >
+              ← <span>Précédent</span>
+            </button>
+            <button
+              type="button"
+              class="page-button"
+              [disabled]="pagination().page >= pagination().totalPages || isLoading()"
+              (click)="loadUsers(pagination().page + 1)"
+            >
+              <span>Suivant</span> →
+            </button>
+          </div>
+        </footer>
+      }
+    </section>
+  </section>
+</main>

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin-guard';
 import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
@@ -51,6 +52,12 @@ export const routes: Routes = [
       import('./features/reservations/pages/reservation-form/reservation-form').then(
         (m) => m.ReservationForm,
       ),
+  },
+  {
+    path: 'users',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/users/pages/user-list/user-list').then((m) => m.UserList),
   },
   { path: '', redirectTo: 'patients', pathMatch: 'full' },
   { path: '**', redirectTo: 'patients' },

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
@@ -27,6 +27,7 @@ export class PatientList {
   private requestNumber = 0;
 
   readonly user = this.auth.user;
+  readonly isAdmin = computed(() => this.auth.user()?.role === 'ADMIN');
   readonly patients = signal<Patient[]>([]);
   readonly isLoading = signal(true);
   readonly errorMessage = signal('');
@@ -100,5 +101,9 @@ export class PatientList {
 
   openReservations(): void {
     void this.router.navigate(['/reservations']);
+  }
+
+  openUsers(): void {
+    void this.router.navigate(['/users']);
   }
 }
