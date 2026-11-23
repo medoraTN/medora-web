@@ -1,1 +1,197 @@
-<p>dashboard works!</p>
+<main class="dashboard-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/dashboard" aria-label="Medora, tableau de bord">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <span>medora</span>
+    </a>
+    <nav class="primary-nav" aria-label="Navigation principale">
+      <a class="active" routerLink="/dashboard" aria-current="page">Tableau de bord</a>
+      <a routerLink="/patients">Patients</a>
+    </nav>
+    <div class="account-actions">
+      <span class="user-greeting">Bonjour, {{ user()?.firstName }}</span>
+      <button class="sign-out" type="button" (click)="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <section class="content" aria-labelledby="page-title">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">VUE D’ENSEMBLE DES URGENCES</p>
+        <h1 id="page-title">Tableau de bord</h1>
+        <p class="subtitle">L’activité du service, en un coup d’œil.</p>
+      </div>
+      <div class="refresh-actions">
+        @if (snapshot(); as data) {
+          <span class="updated-at">Mis à jour à {{ data.lastUpdatedAt | date: 'HH:mm:ss' }}</span>
+        }
+        <button
+          class="refresh-button"
+          type="button"
+          (click)="refresh()"
+          [disabled]="isRefreshing()"
+        >
+          <span aria-hidden="true">↻</span>
+          {{ isRefreshing() ? 'Actualisation…' : 'Actualiser' }}
+        </button>
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="notice error-notice" role="alert">
+        <span>{{ errorMessage() }}</span>
+        @if (!snapshot()) {
+          <button type="button" (click)="refresh()">Réessayer</button>
+        }
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="loading-state" role="status">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Chargement de l’activité du service…</span>
+      </div>
+    } @else if (snapshot(); as data) {
+      <section class="status-section" aria-labelledby="status-heading">
+        <div class="section-heading compact-heading">
+          <div>
+            <h2 id="status-heading">Patients par statut</h2>
+            <p>Effectifs actuels dans le parcours de soins</p>
+          </div>
+          <span class="total-patients"
+            ><strong>{{ data.patients.length }}</strong> patients</span
+          >
+        </div>
+        <div class="status-grid" aria-live="polite">
+          @for (status of statuses; track status) {
+            <article class="status-card" [class]="'status-card status-' + status.toLowerCase()">
+              <span class="status-indicator" aria-hidden="true"></span>
+              <span class="status-label">{{ statusLabel(status) }}</span>
+              <strong class="status-count">{{ count(status) }}</strong>
+            </article>
+          }
+        </div>
+      </section>
+
+      <div class="dashboard-grid">
+        <section class="panel patients-panel" aria-labelledby="patients-heading">
+          <div class="section-heading">
+            <div>
+              <p class="panel-kicker">PRISE EN CHARGE</p>
+              <h2 id="patients-heading">Patients à suivre</h2>
+            </div>
+            <a class="panel-link" routerLink="/patients"
+              >Tous les patients <span aria-hidden="true">→</span></a
+            >
+          </div>
+
+          @if (priorityPatients().length === 0) {
+            <div class="panel-empty">
+              <span class="empty-mark" aria-hidden="true">✓</span>
+              <strong>Aucun patient en attente de suivi</strong>
+              <span>Les nouveaux patients apparaîtront ici.</span>
+            </div>
+          } @else {
+            <div class="patient-list">
+              @for (patient of priorityPatients(); track patient.id) {
+                <a
+                  class="patient-row"
+                  [routerLink]="['/patients', patient.id]"
+                  [attr.aria-label]="patientAriaLabel(patient)"
+                >
+                  <span class="patient-avatar" aria-hidden="true">
+                    {{ patient.firstName.charAt(0) }}{{ patient.lastName.charAt(0) }}
+                  </span>
+                  <span class="patient-info">
+                    <strong>{{ patient.firstName }} {{ patient.lastName }}</strong>
+                    <small>{{ patient.recordNumber }} · {{ patient.arrivalReason }}</small>
+                  </span>
+                  <span class="urgency" [class]="'urgency urgency-' + patient.urgencyLevel">
+                    Niveau {{ patient.urgencyLevel }}
+                  </span>
+                  <span class="patient-status">{{ statusLabel(patient.status) }}</span>
+                  <span class="row-arrow" aria-hidden="true">→</span>
+                </a>
+              }
+            </div>
+          }
+        </section>
+
+        <div class="reservation-panels">
+          <section class="panel reservations-panel" aria-labelledby="today-heading">
+            <div class="section-heading">
+              <div>
+                <p class="panel-kicker">AUJOURD’HUI</p>
+                <h2 id="today-heading">Rendez-vous du jour</h2>
+              </div>
+              <span class="reservation-count">{{ todaysReservations().length }}</span>
+            </div>
+            @if (todaysReservations().length === 0) {
+              <p class="reservation-empty">Aucun rendez-vous prévu aujourd’hui.</p>
+            } @else {
+              <div class="reservation-list">
+                @for (reservation of todaysReservations().slice(0, 5); track reservation.id) {
+                  <article class="reservation-row">
+                    <time class="time-block" [attr.datetime]="reservation.scheduledAt">
+                      {{ reservation.scheduledAt | date: 'HH:mm' }}
+                    </time>
+                    <span class="reservation-info">
+                      <strong>{{ reservation.service }}</strong>
+                      <small>{{ patientName(reservation.patientId) }}</small>
+                    </span>
+                    <span
+                      class="reservation-status"
+                      [class]="'reservation-status status-' + reservation.status.toLowerCase()"
+                    >
+                      {{ reservationStatusLabel(reservation.status) }}
+                    </span>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+
+          <section
+            class="panel reservations-panel upcoming-panel"
+            aria-labelledby="upcoming-heading"
+          >
+            <div class="section-heading">
+              <div>
+                <p class="panel-kicker">À VENIR</p>
+                <h2 id="upcoming-heading">Prochains rendez-vous</h2>
+              </div>
+              <span class="reservation-count">{{ upcomingReservations().length }}</span>
+            </div>
+            @if (upcomingReservations().length === 0) {
+              <p class="reservation-empty">Aucun rendez-vous à venir.</p>
+            } @else {
+              <div class="reservation-list">
+                @for (reservation of upcomingReservations().slice(0, 5); track reservation.id) {
+                  <article class="reservation-row">
+                    <time
+                      class="time-block upcoming-time"
+                      [attr.datetime]="reservation.scheduledAt"
+                    >
+                      <strong>{{ reservation.scheduledAt | date: 'dd/MM' }}</strong>
+                      <small>{{ reservation.scheduledAt | date: 'HH:mm' }}</small>
+                    </time>
+                    <span class="reservation-info">
+                      <strong>{{ reservation.service }}</strong>
+                      <small>{{ patientName(reservation.patientId) }}</small>
+                    </span>
+                    <span
+                      class="reservation-status"
+                      [class]="'reservation-status status-' + reservation.status.toLowerCase()"
+                    >
+                      {{ reservationStatusLabel(reservation.status) }}
+                    </span>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+        </div>
+      </div>
+    }
+  </section>
+</main>

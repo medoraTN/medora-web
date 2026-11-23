@@ -5,6 +5,7 @@
       <span>medora</span>
     </a>
     <div class="account-actions">
+      <button class="sign-out" type="button" (click)="openDashboard()">Tableau de bord</button>
       <button class="sign-out" type="button" (click)="openReservations()">Réservations</button>
       <span class="user-greeting">Bonjour, {{ user()?.firstName }}</span>
       <button class="sign-out" type="button" (click)="logout()">Déconnexion</button>
