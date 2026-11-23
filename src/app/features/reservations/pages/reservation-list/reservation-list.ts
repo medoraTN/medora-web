@@ -32,6 +32,7 @@ export class ReservationList {
   readonly canManage = computed(() =>
     ['ADMIN', 'ADMIN_STAFF', 'MEDICAL'].includes(this.auth.user()?.role ?? ''),
   );
+  readonly isAdmin = computed(() => this.auth.user()?.role === 'ADMIN');
   readonly reservations = signal<Reservation[]>([]);
   readonly patients = signal<Patient[]>([]);
   readonly statuses = RESERVATION_STATUSES;

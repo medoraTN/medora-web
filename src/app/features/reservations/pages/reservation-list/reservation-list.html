@@ -6,6 +6,9 @@
     <nav aria-label="Navigation principale">
       <a routerLink="/patients">Patients</a>
       <a class="active" routerLink="/reservations" aria-current="page">Réservations</a>
+      @if (isAdmin()) {
+        <a routerLink="/users">Utilisateurs</a>
+      }
     </nav>
   </header>
 
