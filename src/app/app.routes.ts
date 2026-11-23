@@ -27,6 +27,31 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard/dashboard').then((m) => m.Dashboard),
   },
+  {
+    path: 'reservations',
+    canActivate: [authGuard],
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('./features/reservations/pages/reservation-list/reservation-list').then(
+        (m) => m.ReservationList,
+      ),
+  },
+  {
+    path: 'reservations/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/reservations/pages/reservation-form/reservation-form').then(
+        (m) => m.ReservationForm,
+      ),
+  },
+  {
+    path: 'reservations/:id/edit',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/reservations/pages/reservation-form/reservation-form').then(
+        (m) => m.ReservationForm,
+      ),
+  },
   { path: '', redirectTo: 'patients', pathMatch: 'full' },
   { path: '**', redirectTo: 'patients' },
 ];

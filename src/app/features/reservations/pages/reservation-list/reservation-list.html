@@ -1,1 +1,143 @@
-<p>reservation-list works!</p>
+<main class="reservations-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/patients" aria-label="Medora, liste des patients">
+      <span class="brand-mark" aria-hidden="true">M</span><span>medora</span>
+    </a>
+    <nav aria-label="Navigation principale">
+      <a routerLink="/patients">Patients</a>
+      <a class="active" routerLink="/reservations" aria-current="page">Réservations</a>
+    </nav>
+  </header>
+
+  <section class="content" aria-labelledby="page-title">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">ORGANISATION DES SOINS</p>
+        <h1 id="page-title">Réservations</h1>
+        <p class="subtitle">Consultez et organisez les rendez-vous de vos patients.</p>
+      </div>
+      @if (canManage()) {
+        <button class="primary-button" type="button" (click)="createReservation()">
+          <span aria-hidden="true">＋</span> Nouvelle réservation
+        </button>
+      }
+    </div>
+
+    <form class="filters" (ngSubmit)="loadReservations()">
+      <label class="field date-field" for="reservation-date">
+        <span>Date</span>
+        <input id="reservation-date" name="date" type="date" [(ngModel)]="selectedDate" />
+      </label>
+      <label class="field status-field" for="reservation-status">
+        <span>Statut</span>
+        <select id="reservation-status" name="status" [(ngModel)]="selectedStatus">
+          <option value="">Tous les statuts</option>
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ statusLabel(status) }}</option>
+          }
+        </select>
+      </label>
+      <button class="filter-button" type="submit" [disabled]="isLoading()">Filtrer</button>
+      @if (selectedDate) {
+        <button class="text-button" type="button" (click)="clearDate()">Toutes les dates</button>
+      }
+    </form>
+
+    @if (errorMessage()) {
+      <div class="notice error-notice" role="alert">
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="loadReservations()">Réessayer</button>
+      </div>
+    }
+    @if (successMessage()) {
+      <div class="notice success-notice" role="status">{{ successMessage() }}</div>
+    }
+
+    <section
+      class="results-card"
+      aria-label="Liste des réservations"
+      [attr.aria-busy]="isLoading()"
+    >
+      @if (isLoading()) {
+        <div class="loading-state" role="status">
+          <span class="spinner"></span>Chargement des réservations…
+        </div>
+      } @else if (reservations().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon" aria-hidden="true">▣</span>
+          <h2>Aucune réservation pour cette sélection</h2>
+          <p>Essayez une autre date ou créez une réservation pour un patient.</p>
+          @if (canManage()) {
+            <button class="primary-button" type="button" (click)="createReservation()">
+              Créer une réservation
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Patient</th>
+                <th scope="col">Prestation</th>
+                <th scope="col">Date et heure</th>
+                <th scope="col">Durée</th>
+                <th scope="col">Statut</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (reservation of reservations(); track reservation.id) {
+                <tr>
+                  <td data-label="Patient">
+                    <strong>{{ patientName(reservation.patientId) }}</strong>
+                  </td>
+                  <td data-label="Prestation">
+                    <span class="service-name">{{ reservation.service }}</span>
+                    @if (reservation.examination) {
+                      <small>{{ reservation.examination }}</small>
+                    }
+                    @if (reservation.practitioner) {
+                      <small>{{ reservation.practitioner }}</small>
+                    }
+                  </td>
+                  <td data-label="Date et heure" class="datetime">
+                    <strong>{{ reservation.scheduledAt | date: 'dd/MM/yyyy' }}</strong>
+                    <small>{{ reservation.scheduledAt | date: 'HH:mm' }}</small>
+                  </td>
+                  <td data-label="Durée">{{ reservation.durationMinutes }} min</td>
+                  <td data-label="Statut">
+                    <span
+                      class="status-badge"
+                      [class]="'status-' + reservation.status.toLowerCase()"
+                    >
+                      <span class="status-dot" aria-hidden="true"></span
+                      >{{ statusLabel(reservation.status) }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    @if (canEdit(reservation)) {
+                      <a
+                        class="action-link"
+                        [routerLink]="['/reservations', reservation.id, 'edit']"
+                        >Modifier</a
+                      >
+                      <button
+                        class="action-link danger-link"
+                        type="button"
+                        [disabled]="cancellingId() === reservation.id"
+                        (click)="cancelReservation(reservation)"
+                      >
+                        {{ cancellingId() === reservation.id ? 'Annulation…' : 'Annuler' }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </section>
+</main>
